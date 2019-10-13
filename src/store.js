@@ -32,7 +32,8 @@ export default new Vuex.Store({
                 numOfHealers: payload.numOfHealers,
                 numOfDps: payload.numOfDps,
                 dateTimes: payload.dateTimes,
-                date: payload.created_at
+                date: payload.created_at,
+                members: []
             }
             let eventImageUrl
             let eventKey
@@ -53,8 +54,19 @@ export default new Vuex.Store({
         },
         addMember({commit, getters}, payload) {
             const newMember = {
-                
+                name: payload.newName,
+                newRole: payload.newRole,
+                prefDate: payload.prefDate,
+                newComment: payload.newComment
             }
+            var chosenDateId = payload.prefDate;
+            var chosenDoc = db.collection('items').doc(payload.eventId);
+            console.log(newMember);
+            console.log(chosenDoc);
+            return true;
+            // chosenDoc.update({
+            //     members: firebase.firestore.FieldValue.arrayUnion(newMember),
+            // })
         }
     }
 })

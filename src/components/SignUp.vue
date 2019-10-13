@@ -24,17 +24,27 @@
             placeholder="Enter your role here..."
             v-model="newRole"
             :options="roles"
+            :state="newRoleValidation"
             required
           ></b-form-select>
+          <b-form-invalid-feedback
+            :state="newRoleValidation"
+          >Please select a role which isn't currently full</b-form-invalid-feedback>
+          <b-form-valid-feedback :state="newRoleValidation">Looks Good.</b-form-valid-feedback>
         </b-form-group>
 
-        <b-form-group id="memberRoleFieldSet" label="Your Role:" label-for="memberRoleField">
+        <b-form-group id="memberRoleFieldSet" label="Choose your Date:" label-for="memberRoleField">
           <b-form-select
             id="memberPrefDateFieldSet"
             v-model="prefDate"
             :options="dates"
+            :state="prefDateValidation"
             required
           ></b-form-select>
+          <b-form-invalid-feedback
+            :state="prefDateValidation"
+          >Please select a date which will be most suitable for you to join</b-form-invalid-feedback>
+          <b-form-valid-feedback :state="prefDateValidation">Looks Good.</b-form-valid-feedback>
         </b-form-group>
 
         <b-form-group
@@ -51,7 +61,7 @@
             v-model="newComment"
           ></b-form-textarea>
         </b-form-group>
-        
+
         <b-row align>
           <b-col lg="12" class="text-center">
             <b-button type="submit" variant="primary">Sign Up!</b-button>
@@ -73,7 +83,7 @@ export default {
       newName: "",
       newRole: "",
       newComment: "",
-      prefDate: "",
+      prefDate: -1,
       roles: ["Tank", "Healer", "DPS"],
       dates: [],
       show: true
@@ -91,8 +101,7 @@ export default {
         text: text
       });
     }
-
-    console.log(this.dates);
+    console.log(this.prefDate);
   },
   computed: {
     modalId() {
@@ -100,6 +109,50 @@ export default {
     },
     newNameValidation() {
       return this.newName.length > 0;
+    },
+    newRoleValidation() {
+      return this.newRole != "";
+    },
+    prefDateValidation() {
+      return this.prefDate >= 0;
+    }
+  },
+  methods: {
+    makeToast (){
+      this.$bvToast.toast('You have signed up for ' + this.event.title, {
+        title: 'Signed Up',
+        variant: 'success',
+        toaster: 'b-toaster-top-center',
+        solid: true,
+        autoHideDelay: 4000
+      })
+    },
+    onSubmit: function() {
+      if (!(this.newNameValidation && this.newRoleValidation && this.prefDateValidation)) 
+      {
+        console.log("me has error");
+        return;
+      }
+      const memberData = {
+        eventId: this.eventId,
+        newName: this.newName,
+        newRole: this.newRole,
+        prefDate: this.prefDate,
+        newComment: this.newComment
+      };
+      this.$store.dispatch("addMember", memberData).then((data) => {
+        if(data){
+          this.makeToast();
+          this.reset();
+        }
+      });
+      
+    },
+    reset() {
+      this.newName = "",
+      this.newRole = "",
+      this.prefDate = -1,
+      this.newComment = ""
     }
   }
 };
